@@ -30,8 +30,8 @@ load_env(ROOT . '/.env');
 
 function env(string $key, string $default = ''): string
 {
-    $v = getenv($key);
-    return $v === false ? $default : $v;
+    $v = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+    return ($v === false || $v === null || $v === '') ? $default : (string) $v;
 }
 
 /* ------------------------------------------------------------------ */
