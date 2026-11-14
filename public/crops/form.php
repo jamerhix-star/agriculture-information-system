@@ -8,9 +8,7 @@ require_permission('crops', $editing ? 'edit' : 'create');
 $row = ['crop_name' => '', 'variety' => '', 'crop_category_id' => '', 'growing_period_days' => '', 'season_id' => ''];
 
 if ($editing) {
-    $st = db()->prepare('SELECT * FROM crop WHERE crop_id = ?');
-    $st->execute([$id]);
-    $found = $st->fetch();
+    $found = model('crop')->find($id);
     if (!$found) {
         flash('danger', 'Crop not found.');
         redirect('/crops/index.php');
@@ -51,18 +49,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            $vals = [$row['crop_name'], $row['variety'], (int) $row['crop_category_id'], (int) $row['growing_period_days'], (int) $row['season_id'], user_id()];
+            $data = [
+                'crop_name'           => $row['crop_name'],
+                'variety'             => $row['variety'],
+                'crop_category_id'    => (int) $row['crop_category_id'],
+                'growing_period_days' => (int) $row['growing_period_days'],
+                'season_id'           => (int) $row['season_id'],
+                'updated_by'          => user_id(),
+            ];
             if ($editing) {
-                $sql = 'UPDATE crop SET crop_name = ?, variety = ?, crop_category_id = ?, growing_period_days = ?, season_id = ?, updated_by = ? WHERE crop_id = ?';
-                db()->prepare($sql)->execute(array_merge($vals, [$id]));
+                model('crop')->update($id, $data);
                 flash('success', 'Crop updated successfully.');
                 redirect('/crops/view.php?id=' . $id);
             }
-            $sql = 'INSERT INTO crop (crop_name, variety, crop_category_id, growing_period_days, season_id, updated_by, created_by) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING crop_id';
-            $st = db()->prepare($sql);
-            $st->execute(array_merge($vals, [user_id()]));
+            $data['created_by'] = user_id();
+            $created = model('crop')->create($data);
             flash('success', 'Crop added successfully.');
-            redirect('/crops/view.php?id=' . (int) $st->fetchColumn());
+            redirect('/crops/view.php?id=' . (int) ($created['crop_id'] ?? 0));
         } catch (PDOException $ex) {
             save_failed($ex, $errors, 'variety', 'This crop and variety already exist.');
         }

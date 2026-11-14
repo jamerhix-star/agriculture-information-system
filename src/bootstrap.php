@@ -564,3 +564,4 @@ function delete_flow(string $table, string $pk, string $base, string $singular, 
 }
 
 require __DIR__ . '/layout.php';
+require __DIR__ . '/models_helper.php';

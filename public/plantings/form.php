@@ -8,9 +8,7 @@ require_permission('plantings', $editing ? 'edit' : 'create');
 $row = ['farm_id' => '', 'crop_id' => '', 'planting_date' => date('Y-m-d'), 'area_planted' => '', 'seed_quantity' => '', 'expected_harvest_date' => '', 'status_id' => '1'];
 
 if ($editing) {
-    $st = db()->prepare('SELECT * FROM planting WHERE planting_id = ?');
-    $st->execute([$id]);
-    $found = $st->fetch();
+    $found = model('planting')->find($id);
     if (!$found) {
         flash('danger', 'Planting record not found.');
         redirect('/plantings/index.php');
@@ -64,19 +62,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            $vals = [(int) $row['farm_id'], (int) $row['crop_id'], $row['planting_date'], $row['area_planted'],
-                     $row['seed_quantity'], $row['expected_harvest_date'], (int) $row['status_id'], user_id()];
+            $data = [
+                'farm_id'               => (int) $row['farm_id'],
+                'crop_id'               => (int) $row['crop_id'],
+                'planting_date'         => $row['planting_date'],
+                'area_planted'          => $row['area_planted'],
+                'seed_quantity'         => $row['seed_quantity'],
+                'expected_harvest_date' => $row['expected_harvest_date'],
+                'status_id'             => (int) $row['status_id'],
+                'updated_by'            => user_id(),
+            ];
             if ($editing) {
-                $sql = 'UPDATE planting SET farm_id = ?, crop_id = ?, planting_date = ?, area_planted = ?, seed_quantity = ?, expected_harvest_date = ?, status_id = ?, updated_by = ? WHERE planting_id = ?';
-                db()->prepare($sql)->execute(array_merge($vals, [$id]));
+                model('planting')->update($id, $data);
                 flash('success', 'Planting record updated successfully.');
                 redirect('/plantings/view.php?id=' . $id);
             }
-            $sql = 'INSERT INTO planting (farm_id, crop_id, planting_date, area_planted, seed_quantity, expected_harvest_date, status_id, updated_by, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING planting_id';
-            $st = db()->prepare($sql);
-            $st->execute(array_merge($vals, [user_id()]));
+            $data['created_by'] = user_id();
+            $created = model('planting')->create($data);
             flash('success', 'Planting record added successfully.');
-            redirect('/plantings/view.php?id=' . (int) $st->fetchColumn());
+            redirect('/plantings/view.php?id=' . (int) ($created['planting_id'] ?? 0));
         } catch (PDOException $ex) {
             save_failed($ex, $errors);
         }

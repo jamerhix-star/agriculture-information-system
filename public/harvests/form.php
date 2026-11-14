@@ -8,9 +8,7 @@ require_permission('harvests', $editing ? 'edit' : 'create');
 $row = ['planting_id' => in_get('planting_id'), 'harvest_date' => date('Y-m-d'), 'quantity_kg' => '', 'selling_price_per_kg' => '', 'grade_id' => '', 'remark_id' => ''];
 
 if ($editing) {
-    $st = db()->prepare('SELECT * FROM harvest WHERE harvest_id = ?');
-    $st->execute([$id]);
-    $found = $st->fetch();
+    $found = model('harvest')->find($id);
     if (!$found) {
         flash('danger', 'Harvest record not found.');
         redirect('/harvests/index.php');
@@ -58,19 +56,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            $vals = [(int) $row['planting_id'], $row['harvest_date'], $row['quantity_kg'], $row['selling_price_per_kg'],
-                     (int) $row['grade_id'], (int) $row['remark_id'], user_id()];
+            $data = [
+                'planting_id'          => (int) $row['planting_id'],
+                'harvest_date'         => $row['harvest_date'],
+                'quantity_kg'          => $row['quantity_kg'],
+                'selling_price_per_kg' => $row['selling_price_per_kg'],
+                'grade_id'             => (int) $row['grade_id'],
+                'remark_id'            => (int) $row['remark_id'],
+                'updated_by'           => user_id(),
+            ];
             if ($editing) {
-                $sql = 'UPDATE harvest SET planting_id = ?, harvest_date = ?, quantity_kg = ?, selling_price_per_kg = ?, grade_id = ?, remark_id = ?, updated_by = ? WHERE harvest_id = ?';
-                db()->prepare($sql)->execute(array_merge($vals, [$id]));
+                model('harvest')->update($id, $data);
                 flash('success', 'Harvest record updated successfully.');
                 redirect('/harvests/view.php?id=' . $id);
             }
-            $sql = 'INSERT INTO harvest (planting_id, harvest_date, quantity_kg, selling_price_per_kg, grade_id, remark_id, updated_by, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING harvest_id';
-            $st = db()->prepare($sql);
-            $st->execute(array_merge($vals, [user_id()]));
+            $data['created_by'] = user_id();
+            $created = model('harvest')->create($data);
             flash('success', 'Harvest record added successfully.');
-            redirect('/harvests/view.php?id=' . (int) $st->fetchColumn());
+            redirect('/harvests/view.php?id=' . (int) ($created['harvest_id'] ?? 0));
         } catch (PDOException $ex) {
             save_failed($ex, $errors);
         }

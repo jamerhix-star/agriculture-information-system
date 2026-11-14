@@ -8,9 +8,7 @@ require_permission('farms', $editing ? 'edit' : 'create');
 $row = ['farmer_id' => '', 'farm_name' => '', 'location' => '', 'area_hectares' => '', 'soil_type_id' => '', 'irrigation_type_id' => ''];
 
 if ($editing) {
-    $st = db()->prepare('SELECT * FROM farm WHERE farm_id = ?');
-    $st->execute([$id]);
-    $found = $st->fetch();
+    $found = model('farm')->find($id);
     if (!$found) {
         flash('danger', 'Farm not found.');
         redirect('/farms/index.php');
@@ -55,19 +53,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            $vals = [(int) $row['farmer_id'], $row['farm_name'], $row['location'], $row['area_hectares'],
-                     (int) $row['soil_type_id'], (int) $row['irrigation_type_id'], user_id()];
+            $data = [
+                'farmer_id'          => (int) $row['farmer_id'],
+                'farm_name'          => $row['farm_name'],
+                'location'           => $row['location'],
+                'area_hectares'      => $row['area_hectares'],
+                'soil_type_id'       => (int) $row['soil_type_id'],
+                'irrigation_type_id' => (int) $row['irrigation_type_id'],
+                'updated_by'         => user_id(),
+            ];
             if ($editing) {
-                $sql = 'UPDATE farm SET farmer_id = ?, farm_name = ?, location = ?, area_hectares = ?, soil_type_id = ?, irrigation_type_id = ?, updated_by = ? WHERE farm_id = ?';
-                db()->prepare($sql)->execute(array_merge($vals, [$id]));
+                model('farm')->update($id, $data);
                 flash('success', 'Farm updated successfully.');
                 redirect('/farms/view.php?id=' . $id);
             }
-            $sql = 'INSERT INTO farm (farmer_id, farm_name, location, area_hectares, soil_type_id, irrigation_type_id, updated_by, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING farm_id';
-            $st = db()->prepare($sql);
-            $st->execute(array_merge($vals, [user_id()]));
+            $data['created_by'] = user_id();
+            $created = model('farm')->create($data);
             flash('success', 'Farm added successfully.');
-            redirect('/farms/view.php?id=' . (int) $st->fetchColumn());
+            redirect('/farms/view.php?id=' . (int) ($created['farm_id'] ?? 0));
         } catch (PDOException $ex) {
             save_failed($ex, $errors, 'farm_name', 'This farmer already has a farm with that name.');
         }

@@ -8,9 +8,7 @@ require_permission('farmers', $editing ? 'edit' : 'create');
 $row = ['first_name' => '', 'last_name' => '', 'contact_number' => '', 'address' => '', 'date_registered' => date('Y-m-d')];
 
 if ($editing) {
-    $st = db()->prepare('SELECT * FROM farmer WHERE farmer_id = ?');
-    $st->execute([$id]);
-    $found = $st->fetch();
+    $found = model('farmer')->find($id);
     if (!$found) {
         flash('danger', 'Farmer not found.');
         redirect('/farmers/index.php');
@@ -57,18 +55,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!$errors) {
         try {
-            $vals = [$row['first_name'], $row['last_name'], $row['contact_number'], $row['address'], $row['date_registered'], user_id()];
+            $data = [
+                'first_name'      => $row['first_name'],
+                'last_name'       => $row['last_name'],
+                'contact_number'  => $row['contact_number'],
+                'address'         => $row['address'],
+                'date_registered' => $row['date_registered'],
+                'updated_by'      => user_id(),
+            ];
             if ($editing) {
-                $sql = 'UPDATE farmer SET first_name = ?, last_name = ?, contact_number = ?, address = ?, date_registered = ?, updated_by = ? WHERE farmer_id = ?';
-                db()->prepare($sql)->execute(array_merge($vals, [$id]));
+                model('farmer')->update($id, $data);
                 flash('success', 'Farmer updated successfully.');
                 redirect('/farmers/view.php?id=' . $id);
             }
-            $sql = 'INSERT INTO farmer (first_name, last_name, contact_number, address, date_registered, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING farmer_id';
-            $st = db()->prepare($sql);
-            $st->execute(array_merge($vals, [user_id()]));
+            $data['created_by'] = user_id();
+            $created = model('farmer')->create($data);
             flash('success', 'Farmer added successfully.');
-            redirect('/farmers/view.php?id=' . (int) $st->fetchColumn());
+            redirect('/farmers/view.php?id=' . (int) ($created['farmer_id'] ?? 0));
         } catch (PDOException $ex) {
             save_failed($ex, $errors, 'contact_number', 'A farmer with this name and contact number already exists.');
         }

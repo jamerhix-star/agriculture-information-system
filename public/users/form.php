@@ -8,9 +8,7 @@ require_permission('users', $editing ? 'edit' : 'create');
 
 $row = ['username' => '', 'full_name' => '', 'role_id' => '2', 'is_active' => '1'];
 if ($editing) {
-    $st = db()->prepare('SELECT user_id, username, full_name, role_id, is_active FROM users WHERE user_id = ?');
-    $st->execute([$id]);
-    $found = $st->fetch();
+    $found = model('user')->find($id);
     if (!$found) {
         flash('danger', 'User not found.');
         redirect('/users/index.php');
@@ -69,22 +67,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errors) {
         try {
             if ($editing) {
-                $sql = 'UPDATE users SET username = ?, full_name = ?, role_id = ?, is_active = ?';
-                $vals = [$row['username'], $row['full_name'], (int) $row['role_id'], $row['is_active']];
+                $data = [
+                    'username'  => $row['username'],
+                    'full_name' => $row['full_name'],
+                    'role_id'   => (int) $row['role_id'],
+                    'is_active' => $row['is_active'] === '1',
+                ];
                 if ($password !== '') {
-                    $sql .= ', password_hash = ?';
-                    $vals[] = password_hash($password, PASSWORD_DEFAULT);
+                    $data['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
                 }
-                $vals[] = $id;
-                db()->prepare($sql . ' WHERE user_id = ?')->execute($vals);
+                model('user')->update($id, $data);
                 if ($id === user_id()) {
                     $_SESSION['user']['full_name'] = $row['full_name'];
                     $_SESSION['user']['username'] = $row['username'];
                 }
                 flash('success', 'User updated successfully.');
             } else {
-                $sql = 'INSERT INTO users (username, full_name, password_hash, role_id, is_active) VALUES (?, ?, ?, ?, ?)';
-                db()->prepare($sql)->execute([$row['username'], $row['full_name'], password_hash($password, PASSWORD_DEFAULT), (int) $row['role_id'], $row['is_active']]);
+                $data = [
+                    'username'      => $row['username'],
+                    'full_name'     => $row['full_name'],
+                    'password_hash' => password_hash($password, PASSWORD_DEFAULT),
+                    'role_id'       => (int) $row['role_id'],
+                    'is_active'     => $row['is_active'] === '1',
+                ];
+                model('user')->create($data);
                 flash('success', 'User added successfully.');
             }
             redirect('/users/index.php');
