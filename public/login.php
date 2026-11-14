@@ -41,10 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 page_header('Login', '', false);
 ?>
 <div class="login-bg" style="position:fixed; inset:0; z-index:2000; overflow:auto;">
-    <div class="card login-card shadow-lg">
+    <div class="card login-card">
         <div class="card-body p-4 p-md-5">
             <div class="text-center mb-4">
-                <h1 class="h4 fw-bold mb-1" style="color:#14532d">Agriculture Information System</h1>
+                <h1 class="h4 mb-1">Agriculture Information System</h1>
                 <p class="text-muted mb-0">Sign in to continue</p>
             </div>
             <?php if ($error !== ''): ?>
