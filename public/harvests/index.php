@@ -54,7 +54,7 @@ $data = paginate(
 page_header('Harvest records', 'harvests');
 list_title('Harvest records', '/harvests/form.php', 'Add harvest');
 ?>
-<form class="row g-2 mb-3" method="get">
+<form class="row g-2 filter-bar" method="get">
     <div class="col-12 col-md-3"><input class="form-control" name="q" placeholder="Search farm or crop" value="<?= e($q) ?>"></div>
     <div class="col-6 col-md-2"><?= filter_select('grade', lookup('grade'), $grade, 'All grades') ?></div>
     <div class="col-6 col-md-2"><?= filter_select('remark', lookup('remark'), $remark, 'All remarks') ?></div>
@@ -86,7 +86,7 @@ list_title('Harvest records', '/harvests/form.php', 'Add harvest');
                 <td><?= e(money($r['quantity_kg'])) ?></td>
                 <td><?= e(money($r['selling_price_per_kg'])) ?></td>
                 <td><?= e(money($r['est_value'])) ?></td>
-                <td><?= e($r['grade_name']) ?></td>
+                <td><?= grade_badge($r['grade_name']) ?></td>
                 <td><?= e($r['remark_description']) ?></td>
                 <?= row_actions('/harvests', (int) $r['harvest_id']) ?>
             </tr>

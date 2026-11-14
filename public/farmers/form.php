@@ -4,6 +4,7 @@ require_login();
 
 $id = (int) in_get('id');
 $editing = $id > 0;
+require_permission('farmers', $editing ? 'edit' : 'create');
 $row = ['first_name' => '', 'last_name' => '', 'contact_number' => '', 'address' => '', 'date_registered' => date('Y-m-d')];
 
 if ($editing) {

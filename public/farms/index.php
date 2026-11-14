@@ -38,7 +38,7 @@ $data = paginate(
 page_header('Farms', 'farms');
 list_title('Farms', '/farms/form.php', 'Add farm');
 ?>
-<form class="row g-2 mb-3" method="get">
+<form class="row g-2 filter-bar" method="get">
     <div class="col-12 col-md-4"><input class="form-control" name="q" placeholder="Search farm, location or farmer" value="<?= e($q) ?>"></div>
     <div class="col-6 col-md-3"><?= filter_select('irrigation', lookup('irrigation'), $irr, 'All irrigation types') ?></div>
     <div class="col-6 col-md-3"><?= filter_select('soil', lookup('soil'), $soil, 'All soil types') ?></div>

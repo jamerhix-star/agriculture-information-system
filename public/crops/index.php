@@ -36,7 +36,7 @@ $data = paginate(
 page_header('Crops', 'crops');
 list_title('Crops', '/crops/form.php', 'Add crop');
 ?>
-<form class="row g-2 mb-3" method="get">
+<form class="row g-2 filter-bar" method="get">
     <div class="col-12 col-md-4"><input class="form-control" name="q" placeholder="Search crop or variety" value="<?= e($q) ?>"></div>
     <div class="col-6 col-md-3"><?= filter_select('category', lookup('category'), $cat, 'All categories') ?></div>
     <div class="col-6 col-md-3"><?= filter_select('season', lookup('season'), $season, 'All seasons') ?></div>

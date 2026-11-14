@@ -36,7 +36,7 @@ page_header('Farm details', 'farms');
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0"><?= e($f['farm_name']) ?></h1>
     <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="/farms/form.php?id=<?= $id ?>">Edit</a>
+        <?php if (can('farms', 'edit')): ?><a class="btn btn-outline-secondary" href="/farms/form.php?id=<?= $id ?>">Edit</a><?php endif; ?>
         <a class="btn btn-outline-dark" href="/farms/index.php">Back to list</a>
     </div>
 </div>
@@ -59,7 +59,7 @@ page_header('Farm details', 'farms');
             <tr>
                 <td><?= (int) $r['planting_id'] ?></td><td><?= e($r['crop_name'] . ' - ' . $r['variety']) ?></td>
                 <td><?= e($r['planting_date']) ?></td><td><?= e(money($r['area_planted'])) ?></td>
-                <td><?= e($r['expected_harvest_date']) ?></td><td><?= e($r['status_name']) ?></td>
+                <td><?= e($r['expected_harvest_date']) ?></td><td><?= status_badge($r['status_name']) ?></td>
                 <td><a class="btn btn-sm btn-outline-primary" href="/plantings/view.php?id=<?= (int) $r['planting_id'] ?>">View</a></td>
             </tr>
         <?php endforeach; ?>

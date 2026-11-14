@@ -48,7 +48,7 @@ $crops = db()->query("SELECT crop_id AS id, crop_name || ' - ' || variety AS lab
 page_header('Planting records', 'plantings');
 list_title('Planting records', '/plantings/form.php', 'Add planting');
 ?>
-<form class="row g-2 mb-3" method="get">
+<form class="row g-2 filter-bar" method="get">
     <div class="col-12 col-md-3"><input class="form-control" name="q" placeholder="Search farm or crop" value="<?= e($q) ?>"></div>
     <div class="col-6 col-md-2"><?= filter_select('status', lookup('status'), $status, 'All statuses') ?></div>
     <div class="col-6 col-md-2"><?= filter_select('crop', $crops, $cropId, 'All crops') ?></div>
@@ -77,7 +77,7 @@ list_title('Planting records', '/plantings/form.php', 'Add planting');
                 <td><?= e($r['planting_date']) ?></td>
                 <td><?= e(money($r['area_planted'])) ?></td>
                 <td><?= e($r['expected_harvest_date']) ?></td>
-                <td><span class="badge text-bg-secondary"><?= e($r['status_name']) ?></span></td>
+                <td><?= status_badge($r['status_name']) ?></td>
                 <?= row_actions('/plantings', (int) $r['planting_id']) ?>
             </tr>
         <?php endforeach; ?>

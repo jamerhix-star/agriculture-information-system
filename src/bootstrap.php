@@ -1,4 +1,8 @@
 <?php
+/**
+ * Core file: environment, database, security helpers, list/form helpers.
+ * Every page starts with: require_once ... '/src/bootstrap.php';
+ */
 define('ROOT', dirname(__DIR__));
 
 /* ------------------------------------------------------------------ */

@@ -34,7 +34,7 @@ page_header('Crop details', 'crops');
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0"><?= e($c['crop_name'] . ' - ' . $c['variety']) ?></h1>
     <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="/crops/form.php?id=<?= $id ?>">Edit</a>
+        <?php if (can('crops', 'edit')): ?><a class="btn btn-outline-secondary" href="/crops/form.php?id=<?= $id ?>">Edit</a><?php endif; ?>
         <a class="btn btn-outline-dark" href="/crops/index.php">Back to list</a>
     </div>
 </div>
@@ -54,7 +54,7 @@ page_header('Crop details', 'crops');
         <?php foreach ($plantings as $r): ?>
             <tr>
                 <td><?= (int) $r['planting_id'] ?></td><td><?= e($r['farm_name']) ?></td><td><?= e($r['planting_date']) ?></td>
-                <td><?= e(money($r['area_planted'])) ?></td><td><?= e($r['status_name']) ?></td>
+                <td><?= e(money($r['area_planted'])) ?></td><td><?= status_badge($r['status_name']) ?></td>
                 <td><a class="btn btn-sm btn-outline-primary" href="/plantings/view.php?id=<?= (int) $r['planting_id'] ?>">View</a></td>
             </tr>
         <?php endforeach; ?>

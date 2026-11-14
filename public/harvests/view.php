@@ -29,7 +29,7 @@ page_header('Harvest details', 'harvests');
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Harvest #<?= (int) $h['harvest_id'] ?></h1>
     <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="/harvests/form.php?id=<?= $id ?>">Edit</a>
+        <?php if (can('harvests', 'edit')): ?><a class="btn btn-outline-secondary" href="/harvests/form.php?id=<?= $id ?>">Edit</a><?php endif; ?>
         <a class="btn btn-outline-dark" href="/harvests/index.php">Back to list</a>
     </div>
 </div>

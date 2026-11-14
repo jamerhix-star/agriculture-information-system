@@ -4,6 +4,7 @@ require_login();
 
 $id = (int) in_get('id');
 $editing = $id > 0;
+require_permission('harvests', $editing ? 'edit' : 'create');
 $row = ['planting_id' => in_get('planting_id'), 'harvest_date' => date('Y-m-d'), 'quantity_kg' => '', 'selling_price_per_kg' => '', 'grade_id' => '', 'remark_id' => ''];
 
 if ($editing) {

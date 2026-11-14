@@ -4,6 +4,7 @@ require_login();
 
 $id = (int) in_get('id');
 $editing = $id > 0;
+require_permission('crops', $editing ? 'edit' : 'create');
 $row = ['crop_name' => '', 'variety' => '', 'crop_category_id' => '', 'growing_period_days' => '', 'season_id' => ''];
 
 if ($editing) {

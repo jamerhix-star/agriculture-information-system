@@ -1,4 +1,5 @@
 <?php
+/** Shared page layout: Bootstrap 5 (CDN) + a small custom theme, sidebar navigation, flash messages. */
 
 function page_header(string $title, string $active = '', bool $nav = true): void
 {

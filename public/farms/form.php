@@ -4,6 +4,7 @@ require_login();
 
 $id = (int) in_get('id');
 $editing = $id > 0;
+require_permission('farms', $editing ? 'edit' : 'create');
 $row = ['farmer_id' => '', 'farm_name' => '', 'location' => '', 'area_hectares' => '', 'soil_type_id' => '', 'irrigation_type_id' => ''];
 
 if ($editing) {

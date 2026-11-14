@@ -4,6 +4,7 @@ require_login();
 
 $id = (int) in_get('id');
 $editing = $id > 0;
+require_permission('plantings', $editing ? 'edit' : 'create');
 $row = ['farm_id' => '', 'crop_id' => '', 'planting_date' => date('Y-m-d'), 'area_planted' => '', 'seed_quantity' => '', 'expected_harvest_date' => '', 'status_id' => '1'];
 
 if ($editing) {
@@ -84,6 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $farms = db()->query("SELECT fm.farm_id AS id, fm.farm_name || ' (' || fr.last_name || ')' AS label FROM farm fm JOIN farmer fr ON fr.farmer_id = fm.farmer_id ORDER BY fm.farm_name")->fetchAll();
 $crops = db()->query("SELECT crop_id AS id, crop_name || ' - ' || variety AS label FROM crop ORDER BY crop_name, variety")->fetchAll();
+$cropDays = [];
+foreach (db()->query('SELECT crop_id, growing_period_days FROM crop')->fetchAll() as $c) {
+    $cropDays[(int) $c['crop_id']] = (int) $c['growing_period_days'];
+}
 
 page_header($editing ? 'Edit planting' : 'Add planting', 'plantings');
 ?>
@@ -103,4 +108,24 @@ page_header($editing ? 'Edit planting' : 'Add planting', 'plantings');
         <a class="btn btn-outline-secondary" href="/plantings/index.php">Cancel</a>
     </div>
 </form>
+<script>
+// Convenience only: suggests the expected harvest date (planting date + crop growing days). The server validates again.
+(function () {
+    var days = <?= json_encode($cropDays, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    var crop = document.getElementById('crop_id'), pd = document.getElementById('planting_date'), ex = document.getElementById('expected_harvest_date');
+    if (!crop || !pd || !ex) { return; }
+    var auto = ex.value === '';
+    ex.addEventListener('input', function () { auto = false; });
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    function fill() {
+        var d = days[crop.value];
+        if (!auto || !d || !pd.value) { return; }
+        var dt = new Date(pd.value + 'T00:00:00');
+        dt.setDate(dt.getDate() + d);
+        ex.value = dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate());
+    }
+    crop.addEventListener('change', fill);
+    pd.addEventListener('change', fill);
+})();
+</script>
 <?php page_footer();

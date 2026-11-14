@@ -32,7 +32,7 @@ page_header('Farmer details', 'farmers');
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0"><?= e($f['first_name'] . ' ' . $f['last_name']) ?></h1>
     <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="/farmers/form.php?id=<?= $id ?>">Edit</a>
+        <?php if (can('farmers', 'edit')): ?><a class="btn btn-outline-secondary" href="/farmers/form.php?id=<?= $id ?>">Edit</a><?php endif; ?>
         <a class="btn btn-outline-dark" href="/farmers/index.php">Back to list</a>
     </div>
 </div>

@@ -35,7 +35,7 @@ foreach (db()->query('SELECT DISTINCT address FROM farmer ORDER BY address')->fe
 page_header('Farmers', 'farmers');
 list_title('Farmers', '/farmers/form.php', 'Add farmer');
 ?>
-<form class="row g-2 mb-3" method="get">
+<form class="row g-2 filter-bar" method="get">
     <div class="col-12 col-md-5"><input class="form-control" name="q" placeholder="Search name or contact number" value="<?= e($q) ?>"></div>
     <div class="col-12 col-md-4"><?= filter_select('address', $addresses, $address, 'All addresses') ?></div>
     <?= filter_actions('/farmers/index.php') ?>

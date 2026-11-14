@@ -37,7 +37,7 @@ page_header('Planting details', 'plantings');
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h3 mb-0">Planting #<?= (int) $p['planting_id'] ?></h1>
     <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="/plantings/form.php?id=<?= $id ?>">Edit</a>
+        <?php if (can('plantings', 'edit')): ?><a class="btn btn-outline-secondary" href="/plantings/form.php?id=<?= $id ?>">Edit</a><?php endif; ?>
         <a class="btn btn-outline-dark" href="/plantings/index.php">Back to list</a>
     </div>
 </div>
@@ -54,7 +54,7 @@ page_header('Planting details', 'plantings');
 </div>
 <div class="d-flex justify-content-between align-items-center mb-2">
     <h2 class="h5 mb-0">Harvest records</h2>
-    <a class="btn btn-sm btn-success" href="/harvests/form.php?planting_id=<?= $id ?>">+ Add harvest</a>
+    <?php if (can('harvests', 'create')): ?><a class="btn btn-sm btn-success" href="/harvests/form.php?planting_id=<?= $id ?>">+ Add harvest</a><?php endif; ?>
 </div>
 <div class="table-responsive bg-white border rounded">
     <table class="table table-striped mb-0">
@@ -63,7 +63,7 @@ page_header('Planting details', 'plantings');
         <?php foreach ($harvests as $r): ?>
             <tr>
                 <td><?= (int) $r['harvest_id'] ?></td><td><?= e($r['harvest_date']) ?></td><td><?= e(money($r['quantity_kg'])) ?></td>
-                <td><?= e(money($r['selling_price_per_kg'])) ?></td><td><?= e($r['grade_name']) ?></td><td><?= e($r['remark_description']) ?></td>
+                <td><?= e(money($r['selling_price_per_kg'])) ?></td><td><?= grade_badge($r['grade_name']) ?></td><td><?= e($r['remark_description']) ?></td>
                 <td><a class="btn btn-sm btn-outline-primary" href="/harvests/view.php?id=<?= (int) $r['harvest_id'] ?>">View</a></td>
             </tr>
         <?php endforeach; ?>
