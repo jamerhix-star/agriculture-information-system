@@ -49,13 +49,13 @@ $recentHarvests = $pdo->query(
       ORDER BY h.harvest_date DESC, h.harvest_id DESC LIMIT 5'
 )->fetchAll();
 
-// label, count, link, emoji, icon background
+// label, count, link, accent color
 $cards = [
-    ['Farmers', $counts['farmers'], '/farmers/index.php', '👩‍🌾', '#dcfce7'],
-    ['Farms', $counts['farms'], '/farms/index.php', '🏡', '#dbeafe'],
-    ['Crops', $counts['crops'], '/crops/index.php', '🥬', '#fef9c3'],
-    ['Plantings', $counts['plantings'], '/plantings/index.php', '🌱', '#ccfbf1'],
-    ['Harvests', $counts['harvests'], '/harvests/index.php', '🧺', '#fee2e2'],
+    ['Farmers', $counts['farmers'], '/farmers/index.php', '#16a34a'],
+    ['Farms', $counts['farms'], '/farms/index.php', '#2563eb'],
+    ['Crops', $counts['crops'], '/crops/index.php', '#ca8a04'],
+    ['Plantings', $counts['plantings'], '/plantings/index.php', '#0d9488'],
+    ['Harvests', $counts['harvests'], '/harvests/index.php', '#dc2626'],
 ];
 
 page_header('Dashboard', 'dashboard');
@@ -73,12 +73,12 @@ page_header('Dashboard', 'dashboard');
 </div>
 
 <div class="row g-3 mb-3">
-    <?php foreach ($cards as [$label, $count, $url, $icon, $bg]): ?>
+    <?php foreach ($cards as [$label, $count, $url, $accent]): ?>
         <div class="col-6 col-md-4 col-xl">
             <a class="stat-link" href="<?= e($url) ?>">
-                <div class="card h-100"><div class="stat">
-                    <div class="ico" style="background:<?= e($bg) ?>"><?= $icon ?></div>
-                    <div><div class="num"><?= (int) $count ?></div><div class="lbl">Total <?= e($label) ?></div></div>
+                <div class="card h-100" style="border-left: 5px solid <?= e($accent) ?>"><div class="stat">
+                    <div class="num"><?= (int) $count ?></div>
+                    <div class="lbl">Total <?= e($label) ?></div>
                 </div></div>
             </a>
         </div>
@@ -87,15 +87,15 @@ page_header('Dashboard', 'dashboard');
 
 <div class="row g-3 mb-3">
     <div class="col-md-6">
-        <div class="card h-100"><div class="stat">
-            <div class="ico" style="background:#dcfce7">⚖️</div>
-            <div><div class="num"><?= e(number_format((float) $totals['qty'], 2)) ?> <small class="fs-6 text-muted">kg</small></div><div class="lbl">Total harvested quantity</div></div>
+        <div class="card h-100" style="border-left: 5px solid #16a34a"><div class="stat">
+            <div class="num"><?= e(number_format((float) $totals['qty'], 2)) ?> <small class="fs-6 text-muted">kg</small></div>
+            <div class="lbl">Total harvested quantity</div>
         </div></div>
     </div>
     <div class="col-md-6">
-        <div class="card h-100"><div class="stat">
-            <div class="ico" style="background:#fef3c7">💰</div>
-            <div><div class="num">&#8369; <?= e(money($totals['value'])) ?></div><div class="lbl">Estimated harvest value</div></div>
+        <div class="card h-100" style="border-left: 5px solid #ca8a04"><div class="stat">
+            <div class="num">&#8369; <?= e(money($totals['value'])) ?></div>
+            <div class="lbl">Estimated harvest value</div>
         </div></div>
     </div>
 </div>
