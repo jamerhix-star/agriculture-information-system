@@ -4,14 +4,14 @@
 function page_header(string $title, string $active = '', bool $nav = true): void
 {
     $items = [
-        'dashboard' => ['/index.php', 'Dashboard'],
-        'farmers'   => ['/farmers/index.php', 'Farmers'],
-        'farms'     => ['/farms/index.php', 'Farms'],
-        'crops'     => ['/crops/index.php', 'Crops'],
-        'plantings' => ['/plantings/index.php', 'Plantings'],
-        'harvests'  => ['/harvests/index.php', 'Harvests'],
-        'reports'   => ['/reports.php', 'Reports'],
-        'users'     => ['/users/index.php', 'Users'],
+        'dashboard' => ['/index.php', 'Dashboard', '', ''],
+        'farmers'   => ['/farmers/index.php', 'Farmers', '', 'farmers'],
+        'farms'     => ['/farms/index.php', 'Farms', '', 'farms'],
+        'crops'     => ['/crops/index.php', 'Crops', '', 'crops'],
+        'plantings' => ['/plantings/index.php', 'Plantings', '', 'plantings'],
+        'harvests'  => ['/harvests/index.php', 'Harvests', '', 'harvests'],
+        'reports'   => ['/reports.php', 'Reports', '', 'reports'],
+        'users'     => ['/users/index.php', 'Users', '', 'users'],
     ];
     $user = current_user();
     $showNav = $nav && $user;
@@ -39,10 +39,10 @@ function page_header(string $title, string $active = '', bool $nav = true): void
         .sidebar .brand { padding: 1.4rem 1.25rem 1rem; font-weight: 700; font-size: 1.2rem; letter-spacing: .02em; }
         .sidebar .brand small { display: block; font-weight: 400; font-size: .75rem; color: #bbf7d0; }
         .sidebar .menu { flex: 1; overflow-y: auto; padding-bottom: 1rem; }
-        .sidebar a.nav-item { display: flex; align-items: center; gap: .7rem; padding: .62rem 1rem; margin: .12rem .75rem; border-radius: 10px;
+        .sidebar a.nav-item { display: flex; align-items: center; padding: .62rem 1.1rem; margin: .12rem .75rem; border-radius: 10px;
                               color: #d1fae5; text-decoration: none; font-size: .95rem; }
         .sidebar a.nav-item:hover { background: rgba(255,255,255,.12); color: #fff; }
-        .sidebar a.nav-item.active { background: #fff; color: var(--g900); font-weight: 600; }
+        .sidebar a.nav-item.active { background: #fff; color: var(--g900); font-weight: 600; box-shadow: inset 4px 0 0 var(--g600); }
         .sidebar .userbox { padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,.15); font-size: .85rem; }
         .sidebar .userbox .name { font-weight: 600; }
         .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1030; }
@@ -70,7 +70,7 @@ function page_header(string $title, string $active = '', bool $nav = true): void
         dd { margin-bottom: .6rem; }
 
         /* dashboard */
-        .stat { display: flex; align-items: center; gap: 1rem; padding: 1.1rem; }
+        .stat { display: block; padding: 1.1rem 1.25rem; }
         .stat .ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 1.6rem; flex: none; }
         .stat .num { font-size: 1.9rem; font-weight: 700; line-height: 1; }
         .stat .lbl { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
@@ -90,11 +90,11 @@ function page_header(string $title, string $active = '', bool $nav = true): void
 <?php if ($showNav): ?>
     <div class="overlay" id="overlay"></div>
     <aside class="sidebar" id="sidebar">
-        <div class="brand">🌾 AgriInfo<small>Agriculture Information System</small></div>
+        <div class="brand">AgriInfo<small>Agriculture Information System</small></div>
         <nav class="menu">
             <?php foreach ($items as $key => [$url, $label, $icon, $module]): ?>
                 <?php if ($module === '' || can($module, 'view')): ?>
-                    <a class="nav-item<?= $key === $active ? ' active' : '' ?>" href="<?= e($url) ?>"><span><?= $icon ?></span><?= e($label) ?></a>
+                    <a class="nav-item<?= $key === $active ? ' active' : '' ?>" href="<?= e($url) ?>"><?= e($label) ?></a>
                 <?php endif; ?>
             <?php endforeach; ?>
         </nav>
@@ -108,7 +108,7 @@ function page_header(string $title, string $active = '', bool $nav = true): void
     <div class="content">
         <div class="topbar d-lg-none">
             <button type="button" class="btn btn-light border" id="menuBtn" aria-label="Open menu">&#9776;</button>
-            <strong class="text-success">🌾 AgriInfo</strong>
+            <strong class="text-success">AgriInfo</strong>
         </div>
         <div class="content-inner">
 <?php else: ?>
