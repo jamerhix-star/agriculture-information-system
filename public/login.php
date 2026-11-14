@@ -40,28 +40,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 page_header('Login', '', false);
 ?>
-<div class="row justify-content-center mt-5">
-    <div class="col-12 col-sm-8 col-md-5 col-lg-4">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h1 class="h4 text-center mb-1">Agriculture Information System</h1>
-                <p class="text-center text-muted">Please sign in</p>
-                <?php if ($error !== ''): ?>
-                    <div class="alert alert-danger"><?= e($error) ?></div>
-                <?php endif; ?>
-                <form method="post" novalidate>
-                    <?= csrf_field() ?>
-                    <div class="mb-3">
-                        <label class="form-label" for="username">Username</label>
-                        <input class="form-control" id="username" name="username" value="<?= e($username) ?>" autofocus>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="password">Password</label>
-                        <input class="form-control" type="password" id="password" name="password">
-                    </div>
-                    <button class="btn btn-success w-100">Login</button>
-                </form>
+<div class="login-bg" style="position:fixed; inset:0; z-index:2000; overflow:auto;">
+    <div class="card login-card shadow-lg">
+        <div class="card-body p-4 p-md-5">
+            <div class="text-center mb-4">
+                <div style="font-size:3rem; line-height:1">🌾</div>
+                <h1 class="h4 fw-bold mt-2 mb-1" style="color:#14532d">Agriculture Information System</h1>
+                <p class="text-muted mb-0">Sign in to continue</p>
             </div>
+            <?php if ($error !== ''): ?>
+                <div class="alert alert-danger py-2"><?= e($error) ?></div>
+            <?php endif; ?>
+            <form method="post" novalidate>
+                <?= csrf_field() ?>
+                <div class="mb-3">
+                    <label class="form-label" for="username">Username</label>
+                    <input class="form-control form-control-lg" id="username" name="username" value="<?= e($username) ?>" autocomplete="username" autofocus>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control form-control-lg" type="password" id="password" name="password" autocomplete="current-password">
+                </div>
+                <button class="btn btn-success btn-lg w-100">Login</button>
+            </form>
         </div>
     </div>
 </div>
