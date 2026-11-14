@@ -1,8 +1,4 @@
 <?php
-/**
- * Core file: environment, database, security helpers, list/form helpers.
- * Every page starts with: require_once ... '/src/bootstrap.php';
- */
 define('ROOT', dirname(__DIR__));
 
 /* ------------------------------------------------------------------ */
@@ -30,8 +26,8 @@ load_env(ROOT . '/.env');
 
 function env(string $key, string $default = ''): string
 {
-    $v = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
-    return ($v === false || $v === null || $v === '') ? $default : (string) $v;
+    $v = getenv($key);
+    return $v === false ? $default : $v;
 }
 
 /* ------------------------------------------------------------------ */
@@ -42,7 +38,9 @@ if (!is_dir(ROOT . '/logs')) {
 }
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
-ini_set('error_log', ROOT . '/logs/php-error.log');
+if (is_dir(ROOT . '/logs') && is_writable(ROOT . '/logs')) {
+    ini_set('error_log', ROOT . '/logs/php-error.log');
+}
 error_reporting(E_ALL);
 
 function log_error($e): void
@@ -50,7 +48,9 @@ function log_error($e): void
     $msg = ($e instanceof Throwable)
         ? get_class($e) . ': ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine()
         : (string) $e;
-    @file_put_contents(ROOT . '/logs/app.log', '[' . date('c') . '] ' . $msg . PHP_EOL, FILE_APPEND);
+    $line = '[' . date('c') . '] ' . $msg . PHP_EOL;
+    @file_put_contents(ROOT . '/logs/app.log', $line, FILE_APPEND); // local file (if writable)
+    @file_put_contents('php://stderr', $line);                       // Render / Docker "Logs" tab
 }
 
 set_exception_handler(function (Throwable $e): void {
@@ -73,18 +73,15 @@ set_exception_handler(function (Throwable $e): void {
 /* 3. Session                                                          */
 /* ------------------------------------------------------------------ */
 if (PHP_SAPI !== 'cli') {
-    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-            || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => '/',
         'httponly' => true,
         'samesite' => 'Lax',
-        'secure'   => $isHttps,
+        'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
     ]);
     session_start();
 }
-
 
 /* ------------------------------------------------------------------ */
 /* 4. Database (PDO + pdo_pgsql, Supabase Session pooler, port 5432)  */
@@ -196,6 +193,55 @@ function require_admin(): void
     }
 }
 
+/**
+ * ROLE PERMISSION MATRIX - the single place that decides who can do what.
+ * Role ids: 1 = Administrator, 2 = Staff.
+ * Administrator: everything. Staff: view everything, add/edit planting and harvest
+ * records only. Master data (farmers, farms, crops), deleting, and user accounts are admin-only.
+ */
+const PERMISSIONS = [
+    'farmers'   => ['view' => [1, 2], 'create' => [1],    'edit' => [1],    'delete' => [1]],
+    'farms'     => ['view' => [1, 2], 'create' => [1],    'edit' => [1],    'delete' => [1]],
+    'crops'     => ['view' => [1, 2], 'create' => [1],    'edit' => [1],    'delete' => [1]],
+    'plantings' => ['view' => [1, 2], 'create' => [1, 2], 'edit' => [1, 2], 'delete' => [1]],
+    'harvests'  => ['view' => [1, 2], 'create' => [1, 2], 'edit' => [1, 2], 'delete' => [1]],
+    'reports'   => ['view' => [1, 2]],
+    'users'     => ['view' => [1],    'create' => [1],    'edit' => [1],    'delete' => []],
+];
+
+function can(string $module, string $action): bool
+{
+    $role = (int) (current_user()['role_id'] ?? 0);
+    return in_array($role, PERMISSIONS[$module][$action] ?? [], true);
+}
+
+/** Server-side check. Hiding a button is not enough, every protected page calls this. */
+function require_permission(string $module, string $action): void
+{
+    require_login();
+    if (!can($module, $action)) {
+        flash('danger', 'You do not have permission to do that. This action is for administrators only.');
+        redirect('/index.php');
+    }
+}
+
+function badge(string $text, string $color = 'secondary'): string
+{
+    return '<span class="badge rounded-pill text-bg-' . e($color) . '">' . e($text) . '</span>';
+}
+
+function status_badge(string $name): string
+{
+    $map = ['Planted' => 'info', 'Growing' => 'warning', 'Harvested' => 'success', 'Failed' => 'danger'];
+    return badge($name, $map[$name] ?? 'secondary');
+}
+
+function grade_badge(string $name): string
+{
+    $map = ['Grade A' => 'success', 'Grade B' => 'primary', 'Grade C' => 'warning'];
+    return badge($name, $map[$name] ?? 'secondary');
+}
+
 /* ------------------------------------------------------------------ */
 /* 7. Validation helpers                                               */
 /* ------------------------------------------------------------------ */
@@ -221,6 +267,7 @@ function row_exists(string $table, string $col, int $id): bool
         'soil_types' => 'soil_type_id', 'irrigation_types' => 'irrigation_type_id',
         'crop_categories' => 'crop_category_id', 'seasons' => 'season_id',
         'planting_statuses' => 'status_id', 'quality_grades' => 'grade_id', 'harvest_remarks' => 'remark_id',
+        'roles' => 'role_id', 'users' => 'user_id',
     ];
     if (($allowed[$table] ?? null) !== $col) {
         throw new InvalidArgumentException('Table/column not allowed');
@@ -393,9 +440,14 @@ function money($v): string
 
 function list_title(string $title, string $addUrl, string $addLabel): void
 {
-    echo '<div class="d-flex justify-content-between align-items-center mb-3">'
-        . '<h1 class="h3 mb-0">' . e($title) . '</h1>'
-        . '<a class="btn btn-success" href="' . e($addUrl) . '">+ ' . e($addLabel) . '</a></div>';
+    $module = trim(dirname($addUrl), '/');
+    echo '<div class="page-head"><h1>' . e($title) . '</h1>';
+    if (can($module, 'create')) {
+        echo '<a class="btn btn-success" href="' . e($addUrl) . '">+ ' . e($addLabel) . '</a>';
+    } else {
+        echo '<span class="badge text-bg-light border">View only</span>';
+    }
+    echo '</div>';
 }
 
 function filter_actions(string $resetUrl): string
@@ -404,13 +456,16 @@ function filter_actions(string $resetUrl): string
         . '<a class="btn btn-outline-secondary" href="' . e($resetUrl) . '">Reset</a></div>';
 }
 
-/** View / Edit / Delete buttons. Delete is shown to administrators only. */
+/** View / Edit / Delete buttons, shown only when the role is allowed (see PERMISSIONS). */
 function row_actions(string $base, int $id): string
 {
+    $m = trim($base, '/');
     $h = '<td class="text-nowrap">'
-        . '<a class="btn btn-sm btn-outline-primary" href="' . e($base) . '/view.php?id=' . $id . '">View</a> '
-        . '<a class="btn btn-sm btn-outline-secondary" href="' . e($base) . '/form.php?id=' . $id . '">Edit</a> ';
-    if (is_admin()) {
+        . '<a class="btn btn-sm btn-outline-primary" href="' . e($base) . '/view.php?id=' . $id . '">View</a> ';
+    if (can($m, 'edit')) {
+        $h .= '<a class="btn btn-sm btn-outline-secondary" href="' . e($base) . '/form.php?id=' . $id . '">Edit</a> ';
+    }
+    if (can($m, 'delete')) {
         $h .= '<a class="btn btn-sm btn-outline-danger" href="' . e($base) . '/delete.php?id=' . $id . '">Delete</a>';
     }
     return $h . '</td>';
@@ -440,7 +495,7 @@ function audit_pairs(array $r): array
  */
 function delete_flow(string $table, string $pk, string $base, string $singular, string $summarySql, array $dependents): void
 {
-    require_admin();
+    require_permission(trim($base, '/'), 'delete');
     $id = (int) (isset($_POST['id']) ? $_POST['id'] : in_get('id'));
 
     $st = db()->prepare($summarySql);
