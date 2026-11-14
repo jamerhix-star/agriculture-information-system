@@ -44,8 +44,7 @@ page_header('Login', '', false);
     <div class="card login-card shadow-lg">
         <div class="card-body p-4 p-md-5">
             <div class="text-center mb-4">
-                <div style="font-size:3rem; line-height:1">🌾</div>
-                <h1 class="h4 fw-bold mt-2 mb-1" style="color:#14532d">Agriculture Information System</h1>
+                <h1 class="h4 fw-bold mb-1" style="color:#14532d">Agriculture Information System</h1>
                 <p class="text-muted mb-0">Sign in to continue</p>
             </div>
             <?php if ($error !== ''): ?>
