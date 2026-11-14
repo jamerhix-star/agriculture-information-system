@@ -57,8 +57,15 @@ function log_error($e): void
     @file_put_contents('php://stderr', $line);                       // Render / Docker "Logs" tab
 }
 
+if (PHP_SAPI !== 'cli') {
+    ob_start(); // buffer output so an error page never appears inside a half-drawn page
+}
+
 set_exception_handler(function (Throwable $e): void {
     log_error($e);
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
     if (PHP_SAPI === 'cli') {
         fwrite(STDERR, 'Error: ' . $e->getMessage() . PHP_EOL);
         return;

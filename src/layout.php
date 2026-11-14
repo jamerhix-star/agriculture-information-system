@@ -1,17 +1,16 @@
 <?php
-/** Shared page layout: Bootstrap 5 (CDN) + a small custom theme, sidebar navigation, flash messages. */
 
 function page_header(string $title, string $active = '', bool $nav = true): void
 {
     $items = [
-        'dashboard' => ['/index.php', 'Dashboard'],
-        'farmers'   => ['/farmers/index.php', 'Farmers'],
-        'farms'     => ['/farms/index.php', 'Farms'],
-        'crops'     => ['/crops/index.php', 'Crops'],
-        'plantings' => ['/plantings/index.php', 'Plantings'],
-        'harvests'  => ['/harvests/index.php', 'Harvests'],
-        'reports'   => ['/reports.php', 'Reports'],
-        'users'     => ['/users/index.php', 'Users'],
+        'dashboard' => ['/index.php', 'Dashboard', '', ''],
+        'farmers'   => ['/farmers/index.php', 'Farmers', '', 'farmers'],
+        'farms'     => ['/farms/index.php', 'Farms', '', 'farms'],
+        'crops'     => ['/crops/index.php', 'Crops', '', 'crops'],
+        'plantings' => ['/plantings/index.php', 'Plantings', '', 'plantings'],
+        'harvests'  => ['/harvests/index.php', 'Harvests', '', 'harvests'],
+        'reports'   => ['/reports.php', 'Reports', '', 'reports'],
+        'users'     => ['/users/index.php', 'Users', '', 'users'],
     ];
     $user = current_user();
     $showNav = $nav && $user;
@@ -24,64 +23,100 @@ function page_header(string $title, string $active = '', bool $nav = true): void
     <title><?= e($title) ?> | Agriculture Information System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root { --g900:#14532d; --g800:#166534; --g700:#15803d; --g600:#16a34a; --g100:#dcfce7; --g50:#f0fdf4; --ink:#1f2937; --muted:#6b7280; --bg:#f3f6f4; }
-        body { background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        a { color: var(--g700); }
-        .btn-success { --bs-btn-bg:#16a34a; --bs-btn-border-color:#16a34a; --bs-btn-hover-bg:#15803d; --bs-btn-hover-border-color:#15803d; --bs-btn-active-bg:#166534; --bs-btn-active-border-color:#166534; }
-        .btn, .form-control, .form-select { border-radius: 10px; }
-        .form-control:focus, .form-select:focus { border-color: var(--g600); box-shadow: 0 0 0 .2rem rgba(22,163,74,.18); }
-        .form-label { font-weight: 600; font-size: .9rem; }
+        :root { --bg:#f6f4ee; --surface:#ffffff; --line:#e6e1d4; --ink:#26261f; --muted:#7a7868; --accent:#3d6a4e; --accent-dark:#2f533d; --accent-soft:#e6efe8;
+                --serif: ui-serif, Georgia, Cambria, "Times New Roman", serif; }
+        html { font-size: 15.5px; }
+        body { background: var(--bg); color: var(--ink); line-height: 1.55;
+               font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+        a { color: var(--accent); } a:hover { color: var(--accent-dark); }
+        h1, h2, h3, .h3, .h4, .h5 { font-family: var(--serif); color: var(--ink); font-weight: 600; }
 
-        /* sidebar */
-        .sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: 250px; z-index: 1040; display: flex; flex-direction: column;
-                   background: linear-gradient(180deg, var(--g900), var(--g800)); color: #fff; transform: translateX(-100%); transition: transform .25s ease; }
+       
+        .btn { border-radius: 8px; font-weight: 500; }
+        .btn-success, .btn-primary { --bs-btn-bg: var(--accent); --bs-btn-border-color: var(--accent); --bs-btn-color: #fff;
+            --bs-btn-hover-bg: var(--accent-dark); --bs-btn-hover-border-color: var(--accent-dark); --bs-btn-hover-color: #fff;
+            --bs-btn-active-bg: var(--accent-dark); --bs-btn-active-border-color: var(--accent-dark); --bs-btn-active-color: #fff; }
+        .btn-outline-success, .btn-outline-primary { --bs-btn-color: var(--accent); --bs-btn-border-color: #cdd8cf;
+            --bs-btn-hover-bg: var(--accent-soft); --bs-btn-hover-color: var(--accent-dark); --bs-btn-hover-border-color: #b5c6ba;
+            --bs-btn-active-bg: var(--accent-soft); --bs-btn-active-color: var(--accent-dark); --bs-btn-active-border-color: #b5c6ba; }
+        .btn-outline-secondary, .btn-outline-dark { --bs-btn-color: #55554a; --bs-btn-border-color: #d8d3c6;
+            --bs-btn-hover-bg: #efece3; --bs-btn-hover-color: var(--ink); --bs-btn-hover-border-color: #c9c3b3;
+            --bs-btn-active-bg: #efece3; --bs-btn-active-color: var(--ink); --bs-btn-active-border-color: #c9c3b3; }
+        .btn-outline-danger { --bs-btn-color: #a2392d; --bs-btn-border-color: #e3c9c5; --bs-btn-hover-bg: #f8e9e6; --bs-btn-hover-color: #8a2f25; --bs-btn-hover-border-color: #d9b3ad; }
+        .form-control, .form-select { border-radius: 8px; border-color: #d9d4c7; background-color: #fff; }
+        .form-control:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 .2rem rgba(61,106,78,.15); }
+        .form-label { font-weight: 500; font-size: .88rem; color: #4a4a40; }
+        .invalid-feedback { font-size: .84rem; }
+
+        
+        .sidebar { position: fixed; top: 0; bottom: 0; left: 0; width: 244px; z-index: 1040; display: flex; flex-direction: column;
+                   background: #efebe1; border-right: 1px solid var(--line); color: var(--ink);
+                   transform: translateX(-100%); transition: transform .25s ease; }
         .sidebar.open { transform: none; }
-        .sidebar .brand { padding: 1.4rem 1.25rem 1rem; font-weight: 700; font-size: 1.2rem; letter-spacing: .02em; }
-        .sidebar .brand small { display: block; font-weight: 400; font-size: .75rem; color: #bbf7d0; }
-        .sidebar .menu { flex: 1; overflow-y: auto; padding-bottom: 1rem; }
-        .sidebar a.nav-item { display: flex; align-items: center; gap: .7rem; padding: .62rem 1rem; margin: .12rem .75rem; border-radius: 10px;
-                              color: #d1fae5; text-decoration: none; font-size: .95rem; }
-        .sidebar a.nav-item:hover { background: rgba(255,255,255,.12); color: #fff; }
-        .sidebar a.nav-item.active { background: #fff; color: var(--g900); font-weight: 600; }
-        .sidebar .userbox { padding: 1rem 1.25rem; border-top: 1px solid rgba(255,255,255,.15); font-size: .85rem; }
+        .sidebar .brand { padding: 1.6rem 1.4rem 1.2rem; font-family: var(--serif); font-weight: 600; font-size: 1.35rem; color: var(--accent-dark); }
+        .sidebar .brand small { display: block; margin-top: .15rem; font-family: system-ui, sans-serif; font-weight: 400; font-size: .74rem; color: var(--muted); letter-spacing: .02em; }
+        .sidebar .menu { flex: 1; overflow-y: auto; padding: .25rem 0 1rem; }
+        .sidebar a.nav-item { display: block; padding: .55rem 1rem; margin: .1rem .8rem; border-radius: 8px; border: 1px solid transparent;
+                              color: #55554a; text-decoration: none; }
+        .sidebar a.nav-item:hover { background: rgba(0,0,0,.04); color: var(--ink); }
+        .sidebar a.nav-item.active { background: #fff; border-color: var(--line); color: var(--accent-dark); font-weight: 600; }
+        .sidebar .userbox { padding: 1rem 1.4rem 1.2rem; border-top: 1px solid var(--line); font-size: .85rem; }
         .sidebar .userbox .name { font-weight: 600; }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1030; }
+        .sidebar .userbox .role { color: var(--muted); margin-bottom: .7rem; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(38,38,31,.35); z-index: 1030; }
         .overlay.show { display: block; }
-        .topbar { position: sticky; top: 0; z-index: 1020; display: flex; align-items: center; gap: .75rem; padding: .6rem 1rem; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-        @media (min-width: 992px) { .sidebar { transform: none; } .has-nav .content { margin-left: 250px; } }
-        .content-inner { padding: 1.25rem; max-width: 1400px; margin: 0 auto; }
-        @media (min-width: 992px) { .content-inner { padding: 2rem 2.25rem; } }
+        .topbar { position: sticky; top: 0; z-index: 1020; display: flex; align-items: center; gap: .75rem; padding: .6rem 1rem; background: #fff; border-bottom: 1px solid var(--line); }
+        @media (min-width: 992px) { .sidebar { transform: none; } .has-nav .content { margin-left: 244px; } }
+        .content-inner { padding: 1.25rem; max-width: 1320px; margin: 0 auto; }
+        @media (min-width: 992px) { .content-inner { padding: 2.4rem 2.75rem; } }
 
         /* page header, cards, tables */
-        .page-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
-        .page-head h1, h1.h3 { font-size: 1.55rem; font-weight: 700; color: var(--g900); margin: 0; }
-        .card { border: 0; border-radius: 14px; box-shadow: 0 1px 3px rgba(16,24,40,.06), 0 6px 18px rgba(16,24,40,.05); }
-        .card-header { background: transparent; border-bottom: 1px solid #eef2ef; font-weight: 600; padding: .9rem 1.1rem; }
-        .table-responsive.bg-white { border: 0 !important; border-radius: 14px !important; box-shadow: 0 1px 3px rgba(16,24,40,.06), 0 6px 18px rgba(16,24,40,.05); }
-        .table { --bs-table-striped-bg: #f8fbf9; --bs-table-hover-bg: #eefaf1; margin-bottom: 0; }
-        .table thead th { background: var(--g50); color: var(--g900); font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--g100); white-space: nowrap; padding: .85rem .9rem; }
+        .page-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .page-head h1, h1.h3 { font-size: 1.75rem; margin: 0; letter-spacing: -.01em; }
+        .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: none; }
+        .card-header { background: transparent; border-bottom: 1px solid var(--line); font-family: var(--serif); font-weight: 600; font-size: 1.05rem; padding: 1rem 1.25rem; }
+        .card-body { padding: 1.25rem; }
+        .table-responsive.bg-white { background: var(--surface) !important; border: 1px solid var(--line) !important; border-radius: 12px !important; box-shadow: none; }
+        .table { --bs-table-bg: transparent; --bs-table-striped-bg: transparent; --bs-table-hover-bg: #faf8f3; --bs-table-border-color: #eee9dc; margin-bottom: 0; }
+        .table thead th { background: transparent; color: var(--muted); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em;
+                          border-bottom: 1px solid var(--line); white-space: nowrap; padding: .95rem 1rem; }
         .table thead th a { color: inherit !important; }
-        .table td { padding: .75rem .9rem; vertical-align: middle; }
-        .filter-bar { background: #fff; border-radius: 14px; padding: .85rem; box-shadow: 0 1px 3px rgba(16,24,40,.06); margin-bottom: 1rem; }
-        .pagination .page-link { color: var(--g700); border-radius: 8px; margin: 0 2px; }
-        .pagination .active .page-link { background: var(--g600); border-color: var(--g600); color: #fff; }
-        .alert { border: 0; border-radius: 12px; }
-        dt { color: var(--muted); font-weight: 600; }
-        dd { margin-bottom: .6rem; }
+        .table td { padding: .85rem 1rem; vertical-align: middle; }
+        .table tbody tr:last-child td { border-bottom: 0; }
+        .filter-bar { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .8rem; margin: 0 0 1.1rem; }
+        .pagination .page-link { color: var(--accent); border: 1px solid var(--line); border-radius: 8px; margin: 0 2px; background: #fff; }
+        .pagination .page-item.disabled .page-link { color: #b0ad9f; }
+        .pagination .active .page-link { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .alert { border: 1px solid transparent; border-radius: 10px; }
+        .alert-success { background: #e8f1ea; color: #2f5d3f; border-color: #cfe0d4; }
+        .alert-danger { background: #f8e9e6; color: #8a2f25; border-color: #ecc9c3; }
+        .alert-warning { background: #f8efd9; color: #7a5a12; border-color: #ecdcb0; }
+        dt { color: var(--muted); font-weight: 500; }
+        dd { margin-bottom: .65rem; }
 
-        /* dashboard */
-        .stat { display: flex; align-items: center; gap: 1rem; padding: 1.1rem; }
-        .stat .ico { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 1.6rem; flex: none; }
-        .stat .num { font-size: 1.9rem; font-weight: 700; line-height: 1; }
-        .stat .lbl { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
-        a.stat-link { text-decoration: none; color: inherit; display: block; transition: transform .15s; }
-        a.stat-link:hover { transform: translateY(-2px); }
-        .bar-track { background: #e8efe9; border-radius: 99px; height: 10px; overflow: hidden; }
-        .bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--g600), #4ade80); }
+       
+        .badge { font-weight: 500; padding: .38em .7em; }
+        .badge.text-bg-success   { background: #e3eee6 !important; color: #2f5d3f !important; }
+        .badge.text-bg-info      { background: #e1ecf0 !important; color: #2f5a6a !important; }
+        .badge.text-bg-warning   { background: #f6ecd2 !important; color: #7a5a12 !important; }
+        .badge.text-bg-danger    { background: #f5e1de !important; color: #8a2f25 !important; }
+        .badge.text-bg-primary   { background: #e2e8f2 !important; color: #34508a !important; }
+        .badge.text-bg-secondary { background: #ece9e0 !important; color: #5c5a4e !important; }
+        .badge.text-bg-light     { background: #fff !important; color: var(--muted) !important; }
+
+        
+        .stat { padding: 1.15rem 1.3rem; }
+        .stat .lbl { color: var(--muted); font-size: .76rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; margin-bottom: .35rem; }
+        .stat .num { font-family: var(--serif); font-size: 2.1rem; font-weight: 600; line-height: 1.1; color: var(--ink); }
+        a.stat-link { text-decoration: none; color: inherit; display: block; }
+        a.stat-link .card { transition: border-color .15s, background-color .15s; }
+        a.stat-link:hover .card { border-color: #c9c3b3; background: #fdfcf9; }
+        .bar-track { background: #ece8dc; border-radius: 99px; height: 8px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 99px; background: var(--accent); }
 
         /* login */
-        .login-bg { min-height: 100vh; display: grid; place-items: center; padding: 1rem; background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #86efac 100%); }
-        .login-card { width: 100%; max-width: 410px; border-radius: 18px; }
+        .login-bg { min-height: 100vh; display: grid; place-items: center; padding: 1rem; background: var(--bg); }
+        .login-card { width: 100%; max-width: 400px; border-radius: 14px; }
 
         @media print { .sidebar, .topbar, .no-print, .overlay { display: none !important; } .has-nav .content { margin-left: 0 !important; } body { background: #fff; } }
     </style>
@@ -90,25 +125,25 @@ function page_header(string $title, string $active = '', bool $nav = true): void
 <?php if ($showNav): ?>
     <div class="overlay" id="overlay"></div>
     <aside class="sidebar" id="sidebar">
-        <div class="brand">🌾 AgriInfo<small>Agriculture Information System</small></div>
+        <div class="brand">AgriInfo<small>Agriculture Information System</small></div>
         <nav class="menu">
             <?php foreach ($items as $key => [$url, $label, $icon, $module]): ?>
                 <?php if ($module === '' || can($module, 'view')): ?>
-                    <a class="nav-item<?= $key === $active ? ' active' : '' ?>" href="<?= e($url) ?>"><span><?= $icon ?></span><?= e($label) ?></a>
+                    <a class="nav-item<?= $key === $active ? ' active' : '' ?>" href="<?= e($url) ?>"><?= e($label) ?></a>
                 <?php endif; ?>
             <?php endforeach; ?>
         </nav>
         <form method="post" action="/logout.php" class="userbox">
             <?= csrf_field() ?>
             <div class="name"><?= e($user['full_name']) ?></div>
-            <div class="mb-2" style="color:#bbf7d0"><?= e($user['role_name']) ?></div>
-            <button class="btn btn-sm btn-light w-100">Logout</button>
+            <div class="role"><?= e($user['role_name']) ?></div>
+            <button class="btn btn-sm btn-outline-secondary w-100">Logout</button>
         </form>
     </aside>
     <div class="content">
         <div class="topbar d-lg-none">
             <button type="button" class="btn btn-light border" id="menuBtn" aria-label="Open menu">&#9776;</button>
-            <strong class="text-success">🌾 AgriInfo</strong>
+            <strong style="font-family:var(--serif); color:var(--accent-dark)">AgriInfo</strong>
         </div>
         <div class="content-inner">
 <?php else: ?>
