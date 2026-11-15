@@ -58,7 +58,7 @@ function page_header(string $title, string $active = '', bool $nav = true): void
         .sidebar .brand small { display: block; margin-top: .15rem; font-family: system-ui, sans-serif; font-weight: 400; font-size: .74rem; color: var(--muted); letter-spacing: .02em; }
         .sidebar .menu { flex: 1; overflow-y: auto; padding: .25rem 0 1rem; }
         .sidebar a.nav-item { display: block; padding: .55rem 1rem; margin: .1rem .8rem; border-radius: 8px; border: 1px solid transparent;
-                              color: #55554a; text-decoration: none; }
+                              color: var(--accent); text-decoration: none; }
         .sidebar a.nav-item:hover { background: rgba(0,0,0,.04); color: var(--ink); }
         .sidebar a.nav-item.active { background: #fff; border-color: var(--line); color: var(--accent-dark); font-weight: 600; }
         .sidebar .userbox { padding: 1rem 1.4rem 1.2rem; border-top: 1px solid var(--line); font-size: .85rem; }
