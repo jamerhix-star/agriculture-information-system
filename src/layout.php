@@ -164,6 +164,7 @@ function page_footer(): void
         </div>
     </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/live_search.js"></script>
 <script>
 (function () {
     var btn = document.getElementById('menuBtn'), sb = document.getElementById('sidebar'), ov = document.getElementById('overlay');

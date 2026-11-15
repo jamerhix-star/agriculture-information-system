@@ -11,8 +11,9 @@
     }
     var module = getModule();
     if (!module) return;
-    var searchInput = document.getElementById('searchInput');
+    var searchInput = document.getElementById('searchInput') || document.querySelector('input[name="q"]');
     if (!searchInput) return;
+    searchInput.id = 'searchInput';
 
     var dropdown = document.createElement('div');
     dropdown.id = 'searchSuggestions';
