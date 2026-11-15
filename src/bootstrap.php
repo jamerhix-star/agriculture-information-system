@@ -125,8 +125,30 @@ function e($v): string
     return htmlspecialchars((string) $v, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+function base_url(): string
+{
+    static $b = null;
+    if ($b === null) {
+        $script = $_SERVER['SCRIPT_NAME'] ?? '';
+        if (strpos($script, '/public') !== false) {
+            $b = substr($script, 0, strpos($script, '/public') + strlen('/public'));
+        } else {
+            $b = '';
+        }
+    }
+    return $b;
+}
+
+function url(string $path): string
+{
+    return base_url() . $path;
+}
+
 function redirect(string $url): void
 {
+    if (strpos($url, 'http') !== 0 && strpos($url, base_url()) !== 0) {
+        $url = base_url() . $url;
+    }
     header('Location: ' . $url);
     exit;
 }

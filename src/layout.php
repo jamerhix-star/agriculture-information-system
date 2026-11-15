@@ -22,7 +22,7 @@ function page_header(string $title, string $active = '', bool $nav = true): void
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e($title) ?> | Agriculture Information System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/custom.css" rel="stylesheet">
+    <link href="<?= e(url('/css/custom.css')) ?>" rel="stylesheet">
     <style>
         :root { --bg:#f6f4ee; --surface:#ffffff; --line:#e6e1d4; --ink:#26261f; --muted:#7a7868; --accent:#3d6a4e; --accent-dark:#2f533d; --accent-soft:#e6efe8;
                 --serif: ui-serif, Georgia, Cambria, "Times New Roman", serif; }
@@ -130,7 +130,7 @@ function page_header(string $title, string $active = '', bool $nav = true): void
         <nav class="menu">
             <?php foreach ($items as $key => [$url, $label, $icon, $module]): ?>
                 <?php if ($module === '' || can($module, 'view')): ?>
-                    <a class="nav-item<?= $key === $active ? ' active' : '' ?>" href="<?= e($url) ?>"><?= e($label) ?></a>
+                    <a class="nav-item<?= $key === $active ? ' active' : '' ?>" href="<?= e(url($url)) ?>"><?= e($label) ?></a>
                 <?php endif; ?>
             <?php endforeach; ?>
         </nav>
@@ -164,7 +164,7 @@ function page_footer(): void
         </div>
     </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/live_search.js"></script>
+<script src="<?= e(url('/js/live_search.js')) ?>"></script>
 <script>
 (function () {
     var btn = document.getElementById('menuBtn'), sb = document.getElementById('sidebar'), ov = document.getElementById('overlay');
